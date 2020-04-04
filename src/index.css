@@ -5,9 +5,167 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: lightblue;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.board-row {
+  clear: both;
+
+}
+
+.board-row:after {
+
+
+}
+
+.cell {
+  border-collapse: collapse;
+  background: #fff;
+  border: 0.5px solid DarkCyan;
+  float: left;
+  font-size: 2vmax;
+  font-weight: bold;
+  line-height: 0px;
+  height: 2em;
+  padding: 0;
+  text-align: center;
+  width: 2em;
+  display: table;
+  transition-duration:0.1s;
+}
+
+.cell:hover{
+  background: LightCyan;
+
+}
+
+.cell--ver {
+  border-right: 3px solid DarkCyan;
+}
+
+.cell--hor {
+  border-bottom: 3px solid DarkCyan;
+}
+
+.cell--select {
+  background: SpringGreen;
+}
+
+.cell--conflict {
+  background: LightGreen;
+}
+
+.cell-text{
+  font-size: 2vmax;
+  font-weight: bold;
+  x :0;
+  y: 50;
+}
+
+
+.difficulty-board{
+  margin-top: 5vh;
+}
+
+.difficulty{
+  border-collapse: collapse;
+  background: #FFF;
+  border: 2px solid DarkCyan;
+  float: left;
+  font-size: 2vmax;
+  font-weight: bold;
+  line-height: 0px;
+  height: 2em;
+  display: inline-block;
+  text-align: center;
+  width: 6em ;
+  border-radius: 20px;
+  transition-duration: 0.4s;
+  margin-bottom: 4px;
+  margin-left: -5px;
+  margin-right: 10px;
+  clear:both;
+}
+
+.difficulty:hover{
+  color: white;
+  background: DarkCyan;
+  border-color: white;
+}
+
+.difficulty--clicked  {
+  color: white;
+  background: DarkCyan;
+  border-color: white;
+}
+
+
+
+.number-buttons{
+  background: #FFF;
+  border: 2px solid DarkCyan;
+  float: left;
+  font-size: 2vmax;
+  font-weight: bold;
+  height: 2em;
+  width: 2em;
+  text-align: center;
+  border-radius: 50%;
+  margin-top: 10px;
+
+  transition-duration: 0.2s;
+}
+
+.number-buttons:hover{
+  background: DarkCyan;
+  border: 2px solid #FFF;
+  color:white;
+
+}
+
+.functions{
+  background: #FFF;
+  border: 2px solid DarkCyan;
+  float: left;
+  font-size: 2vmax;
+  font-weight: bold;
+  height: 2em;
+  width: 6em;
+  text-align: center;
+  border-radius: 20px;
+  margin-top: 10px;
+  margin-left: -5px;
+  margin-right: 10px;
+  transition-duration: 0.2s;
+
+}
+
+.functions:hover{
+  background: DarkCyan;
+  color: white;
+  border-color: white;
+}
+
+.game-board {
+  background-color: lightblue;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5vh;
+
+}
+
+.game-board:after{
+
+}
+
+.game {
+background-color: lightblue;
+justify-content: center;
+align-items:flex-start;
+display: flex;
 }
