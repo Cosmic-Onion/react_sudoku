@@ -39,13 +39,8 @@ code {
   transition-duration:0.1s;
 }
 
-.cell:focus{
-  background: SkyBlue;
-  border-color: DarkCyan;
-}
-
 .cell:hover{
-  background: SlateBlue;
+  background: LightCyan;
 
 }
 
@@ -57,10 +52,12 @@ code {
   border-bottom: 3px solid DarkCyan;
 }
 
-
+.cell--select {
+  background: SpringGreen;
+}
 
 .cell--conflict {
-  background: Aquamarine;
+  background: LightGreen;
 }
 
 .cell-text{

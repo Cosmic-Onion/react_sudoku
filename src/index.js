@@ -3,14 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 function Cell(props) {
-  return (<button className={"cell " + (
-      props.isChunkHor && props.isChunkVer
-      ? "cell--ver cell--hor"
-      : props.isChunkVer
-        ? "cell--ver"
-        : props.isChunkHor
-          ? "cell--hor"
-          : "")}>
+  return (<button onClick={props.onClick} className={"cell " + props.isChunkVer + " " + props.isChunkHor}>
     {props.value}
 
   </button>)
@@ -19,7 +12,7 @@ function Cell(props) {
 class Board extends React.Component {
 
   renderCell(cellNo, chunkVertical, chunkHorizontal) {
-    return (<Cell key={cellNo} value={this.props.squares[cellNo]} isChunkVer={chunkVertical} isChunkHor={chunkHorizontal}/>)
+    return (<Cell key={cellNo} value={this.props.squares[cellNo]} isChunkVer={chunkVertical} isChunkHor={chunkHorizontal} onClick={() => this.props.onClick(cellNo)}/>)
   }
 
   createBoard(col, row) {
@@ -29,11 +22,11 @@ class Board extends React.Component {
     for (let i = 0; i < row; i++) {
       const columns = [];
       let chunkHorizontal = (i === 2 || i === 5)
-        ? "chunkVertical"
+        ? "cell--hor"
         : "";
       for (let y = 0; y < col; y++) {
         let chunkVertical = (y === 2 || y === 5)
-          ? "chunkRight"
+          ? "cell--ver"
           : "";
         columns.push(this.renderCell(cellNo++, chunkVertical, chunkHorizontal));
       }
@@ -43,22 +36,13 @@ class Board extends React.Component {
     board.push(<div className="board-row">
       <React.Fragment>
         <button className="functions">Undo</button>
-        <button className="functions">Note</button>
+        <button className="functions" >Note</button>
         <button className="functions">Erase</button>
       </React.Fragment>
     </div>)
 
-    cellNo = 0;
-    let numbers = []
 
-    for (let i = 0; i < 9; i++) {
-      numbers.push(<button className="number-buttons">{++cellNo}</button>);
-    }
 
-    board.push(<div className="board-row">
-      <React.Fragment>
-        {numbers}</React.Fragment>
-    </div>);
     return board;
   }
 
@@ -67,110 +51,119 @@ class Board extends React.Component {
   }
 }
 
+class Numbers extends React.Component {
+
+  renderNum(){
+    let numbers = []; let board =[];
+    for (let x = 1; x <= 9; x++) {
+      numbers.push(<button className="number-buttons" onClick={() => this.props.onClick(x)}>
+        {x}</button>);
+    }
+
+    board.push(<div className="board-row">
+
+        {numbers}
+    </div>);
+
+    return board;
+
+    }
+
+    render(){
+      return this.renderNum();
+    };
+
+    }
+
 class Game extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
       squares: [], //fill with random 0-9
-      easyBoard       : [0],
-      easyBoardDisp   : [0],
-      easyClicked     : false,
-      mediumBoard     : [0],
-      mediumBoardDisp : [0],
-      mediumClicked   : false,
-      hardBoard       : [0],
-      hardBoardDisp   : [0],
-      hardClicked     : false,
-      difficulty      : "",
-      note            : false,
+      history: [],
+      difficulty: "",
+      easyBoard: [0],
+      easyHistory: [0],
+      mediumBoard: [0],
+      mediumHistory: [0],
+      hardBoard: [0],
+      hardHistory:[0],
+      notes: Array(81),
+      selectedCell: "",
+      input: ""
     };
   }
 
   easyBoard() {
     this.saveState();
-    if (this.state.easyBoard[0] === 0){
-    let easyBoard = this.createBoard();
-    let easyBoardDisp = [];
-    for (let i = 0; i < 81; i++) {
-        easyBoardDisp[i] = (Math.random() < 0.5) ? easyBoard[i] : "";
+    if (this.state.easyBoard[0] === 0) {
+      let easyBoard = this.createBoard();
+      let easyBoardDisp = [];
+      for (let i = 0; i < 81; i++) {
+        easyBoardDisp[i] = (Math.random() < 0.5)
+          ? easyBoard[i]
+          : "";
+      }
+
+      this.setState({squares: easyBoardDisp, easyHistory: easyBoardDisp,
+        easyBoard: easyBoard,
+        difficulty: "easy"
+      })
+    } else {
+      this.setState({squares: this.state.easyHistory[this.state.history.length[0] - 1], difficulty: "easy"})
     }
-    this.setState({
-      squares : easyBoardDisp,
-      easyBoardDisp : easyBoardDisp,
-      easyBoard : easyBoard,
-      difficulty: "easy",
-    })
-  }  else {
-    this.setState({
-      squares:this.state.easyBoardDisp,
-      difficulty: "easy",
-    })
   }
-}
 
   mediumBoard() {
     this.saveState();
-    if (this.state.mediumBoard[0] === 0){
-     let mediumBoard = this.createBoard();
-     let mediumBoardDisp = [];
-     for (let i = 0; i < 81; i++) {
-         mediumBoardDisp[i] = (Math.random() < 0.4) ? mediumBoard[i] : "";
-     }
-     this.setState({
-       squares : mediumBoardDisp,
-       mediumBoardDisp : mediumBoardDisp,
-       mediumBoard : mediumBoard,
-       difficulty: "medium",
-     })
-   }  else {
-     this.setState({
-       squares:this.state.mediumBoardDisp,
-       difficulty: "medium",
-     })
-   }
- }
+    if (this.state.mediumBoard[0] === 0) {
+      let mediumBoard = this.createBoard();
+      let mediumBoardDisp = [];
+      for (let i = 0; i < 81; i++) {
+        mediumBoardDisp[i] = (Math.random() < 0.4)
+          ? mediumBoard[i]
+          : "";
+      }
+      this.setState({squares: mediumBoardDisp, mediumHistory: mediumBoardDisp,
+        mediumBoard: mediumBoard,
+        difficulty: "medium"
+      })
+    } else {
 
-
+      this.setState({squares: this.state.mediumHistory[this.state.history.length[1] - 1], difficulty: "medium"})
+    }
+  }
 
   hardBoard() {
     this.saveState();
-    if (this.state.hardBoard[0] === 0){
-     let hardBoard = this.createBoard();
-     let hardBoardDisp = [];
-     for (let i = 0; i < 81; i++) {
-         hardBoardDisp[i] = (Math.random() < 0.3) ? hardBoard[i] : "";
-     }
-     this.setState({
-       squares : hardBoardDisp,
-       hardBoardDisp : hardBoardDisp,
-       hardBoard : hardBoard,
-       difficulty: "hard",
-     })
-   }  else {
-     this.setState({
-       squares:this.state.hardBoardDisp,
-       difficulty: "hard",
-     })
-   }
+    if (this.state.hardBoard[0] === 0) {
+      let hardBoard = this.createBoard();
+      let hardBoardDisp = [];
+      for (let i = 0; i < 81; i++) {
+        hardBoardDisp[i] = (Math.random() < 0.3)
+          ? hardBoard[i]
+          : "";
+      }
+      this.setState({squares: hardBoardDisp, hardHistory: hardBoardDisp,
+        hardBoard: hardBoard,
+        difficulty: "hard"
+      })
+    } else {
+      this.setState({squares: this.state.hardHistory[this.state.history.length[2] - 1], difficulty: "hard"})
+    }
   }
 
-  saveState(){
+  saveState() {
     switch (this.state.difficulty) {
-      case "easy":
-        this.setState({
-          easyBoardDisp : this.state.squares
-        })
+      case 1:
+        this.setState({easyBoardDisp: this.state.squares})
         break;
-      case "medium":
-      this.setState({
-        mediumBoardDisp : this.state.squares
-      })
+      case 2:
+        this.setState({mediumBoardDisp: this.state.squares})
         break;
-      case "hard":
-      this.setState({
-        hardBoardDisp : this.state.squares
-      })
+      default:
+        this.setState({hardBoardDisp: this.state.squares})
         break;
     }
   }
@@ -239,9 +232,7 @@ class Game extends React.Component {
 
     function isValid(board, num, row, col) {
 
-      if (!clashHorizontal(board, num, col)
-          && !clashVertical(board, num, row)
-          && !clashChunk(board, num, (row - row % 3), (col - col % 3))) { //calculate start of chunk and pass
+      if (!clashHorizontal(board, num, col) && !clashVertical(board, num, row) && !clashChunk(board, num, (row - row % 3), (col - col % 3))) { //calculate start of chunk and pass
         return true
       } else
         return false;
@@ -297,7 +288,7 @@ class Game extends React.Component {
       }
     }
 
-    function shuffleColumns(board){
+    function shuffleColumns(board) {
       let shuffles = Math.floor(Math.random() * 200) + 100;
       for (let i = 0; i <= shuffles; i++) {
         let colOne = Math.floor(Math.random() * 3);
@@ -311,15 +302,17 @@ class Game extends React.Component {
           board[x][colTwo] = temp;
         }
       }
-      return(board);
+      return (board);
     }
 
-    function shuffleRows(board){
+    function shuffleRows(board) {
       let shuffles = Math.floor(Math.random() * 200) + 100;
       for (let i = 0; i <= shuffles; i++) {
         let rowOne = Math.floor(Math.random() * 9);
 
-        let rowTwo = (rowOne%3 === 0) ? rowOne + 2 : rowOne - rowOne%3;
+        let rowTwo = (rowOne % 3 === 0)
+          ? rowOne + 2
+          : rowOne - rowOne % 3;
 
         for (let x = 0; x < 9; x++) { //forloop to swap values
           let temp = board[rowOne][x]
@@ -328,22 +321,88 @@ class Game extends React.Component {
         }
       }
 
-      return(board);
+      return (board);
     }
 
     return (board);
   }
 
+  input(i) {
+    const current = this.state.squares;
+    const history = this.state.squares;
+    const easy = this.state.easyHistory;
+    const medium = this.state.mediumHistory;
+    const hard = this.state.hardHistory;
+    const input = this.state.input;
+
+
+
+    switch (this.state.difficulty) {
+      case "easy":
+        history.push(easy);
+        this.setState({
+          easyHistory : history
+            })
+        break;
+      case "medium":
+        history.push(medium)
+        this.setState({
+          mediumHistory : history
+            })
+        break;
+      case "hard":
+        history.push(hard)
+        this.setState({
+          hardHistory : history
+            })
+        break;
+      default:
+        return
+    }
+
+    console.log(current);
+    console.log(input);
+
+    current[i] = input;
+    console.log(current);
+    console.log(current[i]);
+
+    this.setState({
+      squares: current
+    })
+
+  //  this.state.notes[81]? this.set.state({notes[cellNo]:1}) : "";
+  }
+
+  inputChange(x){
+    console.log("hello");
+    this.setState({
+      input: x,
+    })
+    console.log("x:"+x+" input:"+ this.state.input);
+  }
+
   render() {
     return (<div className="game">
       <div className="game-board">
-        <Board squares={this.state.squares}/>
+        <Board squares={this.state.squares} onClick={(i) => this.input(i)}/>
+        <Numbers onClick={(x) => this.inputChange(x)}/>
       </div>
       <div className="difficulty-board">
         <div>
-          <button className={"difficulty" + (this.state.difficulty === "easy" ? " difficulty--clicked" : "")} onClick={() => this.easyBoard()}>Easy </button>
-          <button className={"difficulty" + (this.state.difficulty === "medium" ? " difficulty--clicked" : "")} onClick={() => this.mediumBoard()}>Medium</button>
-          <button className={"difficulty" + (this.state.difficulty === "hard" ? " difficulty--clicked" : "")} onClick={() => this.hardBoard() }>Hard</button>
+          <button className={"difficulty" + (
+              this.state.difficulty === "easy"
+              ? " difficulty--clicked"
+              : "")} onClick={() => this.easyBoard()}>Easy
+          </button>
+          <button className={"difficulty" + (
+              this.state.difficulty === "medium"
+              ? " difficulty--clicked"
+              : "")} onClick={() => this.mediumBoard()}>Medium</button>
+          <button className={"difficulty" + (
+              this.state.difficulty === "hard"
+              ? " difficulty--clicked"
+              : "")} onClick={() => this.hardBoard()}>Hard</button>
         </div>
 
       </div>
@@ -353,31 +412,3 @@ class Game extends React.Component {
 }
 
 ReactDOM.render(<Game/>, document.getElementById('root'));
-
-// createChunk(chunkNo){
-//   const board = [];
-//   const chunk = [];
-//   let cellNo =0;
-//   for (var x = 0; x < 3; x++) {
-//     const columns = [];
-//     for (var y = 0; y < 3; y++) {
-//       columns.push(this.renderCell(cellNo++, chunkNo));
-//     }
-//   board.push(columns);
-// }
-//   chunk.push(<div key={"chunk" + chunkNo} className="chunk">{board}</div>)
-//   return (chunk)
-// }
-//
-// createBoard(){
-//   const chunkBoard = [];
-//   let chunkNo = 0;
-//   for (let x = 0; x < 3; x++) {
-//     const chunkColumns = [];
-//     for (let y = 0; y < 3; y++) {
-//       chunkColumns.push(this.createChunk(chunkNo++));
-//     }
-//     chunkBoard.push(<div key={x} className="board-row">{chunkColumns}</div>)
-//   }
-//   return chunkBoard;
-//   }
