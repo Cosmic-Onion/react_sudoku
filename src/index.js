@@ -12,7 +12,7 @@ function Cell(props) {
 class Board extends React.Component {
 
   renderCell(cellNo, chunkVertical, chunkHorizontal) {
-    return (<Cell key={cellNo} value={this.props.squares[cellNo]} isChunkVer={chunkVertical} isChunkHor={chunkHorizontal} onClick={() => this.props.onClick(cellNo)}/>)
+    return (<Cell key={cellNo} value={this.props.squares[cellNo]} isChunkVer={chunkVertical} isChunkHor={chunkHorizontal} onClick={() => this.props.onClick(cellNo)} />)
   }
 
   createBoard(col, row) {
@@ -33,16 +33,6 @@ class Board extends React.Component {
       board.push(<div key={i} className="board-row">{columns}</div>);
     }
 
-    board.push(<div className="board-row">
-      <React.Fragment>
-        <button className="functions">Undo</button>
-        <button className="functions" >Note</button>
-        <button className="functions">Erase</button>
-      </React.Fragment>
-    </div>)
-
-
-
     return board;
   }
 
@@ -53,8 +43,8 @@ class Board extends React.Component {
 
 class Numbers extends React.Component {
 
-  renderNum(){
-    let numbers = []; let board =[];
+  renderNum() {
+    let numbers = []; let board = [];
     for (let x = 1; x <= 9; x++) {
       numbers.push(<button className="number-buttons" onClick={() => this.props.onClick(x)}>
         {x}</button>);
@@ -62,18 +52,18 @@ class Numbers extends React.Component {
 
     board.push(<div className="board-row">
 
-        {numbers}
+      {numbers}
     </div>);
 
     return board;
 
-    }
+  }
 
-    render(){
-      return this.renderNum();
-    };
+  render() {
+    return this.renderNum();
+  };
 
-    }
+}
 
 class Game extends React.Component {
 
@@ -88,7 +78,7 @@ class Game extends React.Component {
       mediumBoard: [0],
       mediumHistory: [0],
       hardBoard: [0],
-      hardHistory:[0],
+      hardHistory: [0],
       notes: Array(81),
       selectedCell: "",
       input: ""
@@ -106,15 +96,15 @@ class Game extends React.Component {
           : "";
       }
 
-      this.setState({squares: easyBoardDisp, easyHistory: easyBoardDisp,
+      this.setState({
+        squares: easyBoardDisp, easyHistory: easyBoardDisp,
         easyBoard: easyBoard,
         difficulty: "easy"
       })
     } else {
-      this.setState({squares: this.state.easyHistory[this.state.history.length[0] - 1], difficulty: "easy"})
+      this.setState({ squares: this.state.easyHistory[this.state.history.length[0] - 1], difficulty: "easy" })
     }
   }
-
   mediumBoard() {
     this.saveState();
     if (this.state.mediumBoard[0] === 0) {
@@ -125,16 +115,16 @@ class Game extends React.Component {
           ? mediumBoard[i]
           : "";
       }
-      this.setState({squares: mediumBoardDisp, mediumHistory: mediumBoardDisp,
+      this.setState({
+        squares: mediumBoardDisp, mediumHistory: mediumBoardDisp,
         mediumBoard: mediumBoard,
         difficulty: "medium"
       })
     } else {
 
-      this.setState({squares: this.state.mediumHistory[this.state.history.length[1] - 1], difficulty: "medium"})
+      this.setState({ squares: this.state.mediumHistory[this.state.history.length[1] - 1], difficulty: "medium" })
     }
   }
-
   hardBoard() {
     this.saveState();
     if (this.state.hardBoard[0] === 0) {
@@ -145,25 +135,71 @@ class Game extends React.Component {
           ? hardBoard[i]
           : "";
       }
-      this.setState({squares: hardBoardDisp, hardHistory: hardBoardDisp,
+      this.setState({
+        squares: hardBoardDisp,
+        hardHistory: hardBoardDisp,
         hardBoard: hardBoard,
         difficulty: "hard"
       })
     } else {
-      this.setState({squares: this.state.hardHistory[this.state.history.length[2] - 1], difficulty: "hard"})
+      this.setState({ squares: this.state.hardHistory[this.state.hardHistory.length -1], difficulty: "hard" })
     }
+  }
+
+  difficultySelect(difficulty){
+    if (difficulty === this.state.difficulty){
+      return
+    }
+
+    this.saveState();                       //rewriting individual functions to streamline
+
+    let difficultyBoard, threshold, history;
+
+    switch (difficulty) {
+      case "easy":
+        difficultyBoard = this.state.easyBoard
+        history = this.state.easyBoard
+        threshold = 0.5
+        break;
+      case "medium":
+        difficultyBoard = this.state.mediumBoard
+        history = this.state.mediumBoard
+        threshold = 0.4
+        break;
+      default:
+        difficultyBoard = this.state.hardBoard
+        history = this.state.hardBoard
+        threshold = 0.3
+        break;
+    }
+
+    if (difficultyBoard[0] === 0){
+      let board = this.createBoard();
+      let boardDisp = [];
+      for (let i = 0; i<81;i++){
+        boardDisp[i] = (Math.random() < threshold)
+          ? board[i]
+          : "";
+      }
+     
+        this.state.squares = boardDisp,
+        // difficultyBoard:board,
+        // history:board,
+        // difficulty:difficulty
+    }
+
   }
 
   saveState() {
     switch (this.state.difficulty) {
       case 1:
-        this.setState({easyBoardDisp: this.state.squares})
+        this.setState({ easyBoardDisp: this.state.squares })
         break;
       case 2:
-        this.setState({mediumBoardDisp: this.state.squares})
+        this.setState({ mediumBoardDisp: this.state.squares })
         break;
       default:
-        this.setState({hardBoardDisp: this.state.squares})
+        this.setState({ hardBoardDisp: this.state.squares })
         break;
     }
   }
@@ -210,7 +246,7 @@ class Game extends React.Component {
             return true;
           } else
             board[row][col] = (0);
-          }
+        }
 
       }
       return false
@@ -236,7 +272,7 @@ class Game extends React.Component {
         return true
       } else
         return false;
-      }
+    }
 
     function clashHorizontal(board, num, col) {
 
@@ -277,7 +313,7 @@ class Game extends React.Component {
     } else
       return (board.fill(0));
 
-    }
+  }
 
   shuffleBoard(board) {
 
@@ -328,8 +364,12 @@ class Game extends React.Component {
   }
 
   input(i) {
+    if (this.state.input === "") return;
+
     const current = this.state.squares;
-    const history = this.state.squares;
+    const history = [];
+    history.push(this.state.squares);   //change to push specific difficulty squares
+
     const easy = this.state.easyHistory;
     const medium = this.state.mediumHistory;
     const hard = this.state.hardHistory;
@@ -341,68 +381,108 @@ class Game extends React.Component {
       case "easy":
         history.push(easy);
         this.setState({
-          easyHistory : history
-            })
+          easyHistory: history
+        })
         break;
       case "medium":
         history.push(medium)
         this.setState({
-          mediumHistory : history
-            })
+          mediumHistory: history
+        })
         break;
       case "hard":
         history.push(hard)
         this.setState({
-          hardHistory : history
-            })
+          hardHistory: history
+        })
         break;
       default:
         return
     }
 
-    console.log(current);
-    console.log(input);
+
 
     current[i] = input;
-    console.log(current);
-    console.log(current[i]);
+
 
     this.setState({
-      squares: current
+      squares: current,
+      input: "",
     })
 
-  //  this.state.notes[81]? this.set.state({notes[cellNo]:1}) : "";
+    //  this.state.notes[81]? this.set.state({notes[cellNo]:1}) : "";
   }
 
-  inputChange(x){
+  undo() {
+
+    const easy = this.state.easyHistory;
+    const medium = this.state.mediumHistory;
+    const hard = this.state.hardHistory;
+
+    console.log("hello");
+
+    switch (this.state.difficulty) {
+      case "easy":
+
+        this.setState({
+
+          easyHistory: easy,
+          squares: this.state.squares,
+        })
+        break;
+      case "medium":
+
+        this.setState({
+          mediumHistory: medium.slice(-2, -1),
+          squares: medium,
+        })
+        break;
+      case "hard":
+
+        this.setState({
+          hardHistory: hard.slice(0, -1),
+          squares: hard,
+        })
+        break;
+      default:
+        return
+    }
+  }
+
+  inputChange(x) {
     console.log("hello");
     this.setState({
       input: x,
     })
-    console.log("x:"+x+" input:"+ this.state.input);
+    console.log("x:" + x + " input:" + this.state.input);
   }
 
   render() {
     return (<div className="game">
       <div className="game-board">
-        <Board squares={this.state.squares} onClick={(i) => this.input(i)}/>
-        <Numbers onClick={(x) => this.inputChange(x)}/>
+        <Board squares={this.state.squares} onClick={(i) => this.input(i)} />
+        <div className="board-row">
+          <button className="functions" onClick={() => this.undo()}>Undo</button>
+          <button className="functions" >Note</button>
+          <button className="functions">Erase</button>
+        </div>
+        <Numbers onClick={(x) => this.inputChange(x)} />
       </div>
       <div className="difficulty-board">
         <div>
           <button className={"difficulty" + (
-              this.state.difficulty === "easy"
+            this.state.difficulty === "easy"
               ? " difficulty--clicked"
-              : "")} onClick={() => this.easyBoard()}>Easy
+              : "")} onClick={() => this.difficultySelect("easy")}>Easy
           </button>
           <button className={"difficulty" + (
-              this.state.difficulty === "medium"
+            this.state.difficulty === "medium"
               ? " difficulty--clicked"
-              : "")} onClick={() => this.mediumBoard()}>Medium</button>
+              : "")} onClick={() => this.difficultySelect("medium")}>Medium</button>
           <button className={"difficulty" + (
-              this.state.difficulty === "hard"
+            this.state.difficulty === "hard"
               ? " difficulty--clicked"
-              : "")} onClick={() => this.hardBoard()}>Hard</button>
+              : "")} onClick={() => this.difficultySelect("hard")}>Hard</button>
         </div>
 
       </div>
@@ -411,4 +491,4 @@ class Game extends React.Component {
   }
 }
 
-ReactDOM.render(<Game/>, document.getElementById('root'));
+ReactDOM.render(<Game />, document.getElementById('root'));
