@@ -74,137 +74,112 @@ class Game extends React.Component {
       history: [],
       difficulty: "",
       easyBoard: [0],
-      easyHistory: [0],
+      easyDisp: [0][0],
       mediumBoard: [0],
-      mediumHistory: [0],
+      mediumDisp: [0][0],
       hardBoard: [0],
-      hardHistory: [0],
+      hardDisp: [0][0],
       notes: Array(81),
       selectedCell: "",
       input: ""
     };
   }
 
-  easyBoard() {
-    this.saveState();
-    if (this.state.easyBoard[0] === 0) {
-      let easyBoard = this.createBoard();
-      let easyBoardDisp = [];
-      for (let i = 0; i < 81; i++) {
-        easyBoardDisp[i] = (Math.random() < 0.5)
-          ? easyBoard[i]
-          : "";
-      }
 
-      this.setState({
-        squares: easyBoardDisp, easyHistory: easyBoardDisp,
-        easyBoard: easyBoard,
-        difficulty: "easy"
-      })
-    } else {
-      this.setState({ squares: this.state.easyHistory[this.state.history.length[0] - 1], difficulty: "easy" })
-    }
-  }
-  mediumBoard() {
-    this.saveState();
-    if (this.state.mediumBoard[0] === 0) {
-      let mediumBoard = this.createBoard();
-      let mediumBoardDisp = [];
-      for (let i = 0; i < 81; i++) {
-        mediumBoardDisp[i] = (Math.random() < 0.4)
-          ? mediumBoard[i]
-          : "";
-      }
-      this.setState({
-        squares: mediumBoardDisp, mediumHistory: mediumBoardDisp,
-        mediumBoard: mediumBoard,
-        difficulty: "medium"
-      })
-    } else {
-
-      this.setState({ squares: this.state.mediumHistory[this.state.history.length[1] - 1], difficulty: "medium" })
-    }
-  }
-  hardBoard() {
-    this.saveState();
-    if (this.state.hardBoard[0] === 0) {
-      let hardBoard = this.createBoard();
-      let hardBoardDisp = [];
-      for (let i = 0; i < 81; i++) {
-        hardBoardDisp[i] = (Math.random() < 0.3)
-          ? hardBoard[i]
-          : "";
-      }
-      this.setState({
-        squares: hardBoardDisp,
-        hardHistory: hardBoardDisp,
-        hardBoard: hardBoard,
-        difficulty: "hard"
-      })
-    } else {
-      this.setState({ squares: this.state.hardHistory[this.state.hardHistory.length -1], difficulty: "hard" })
-    }
-  }
-
-  difficultySelect(difficulty){
-    if (difficulty === this.state.difficulty){
+  difficultySelect(difficulty) {
+    if (difficulty === this.state.difficulty) {
       return
+    } else {
+      this.setState({
+        difficulty: difficulty
+      })
     }
 
-    this.saveState();                       //rewriting individual functions to streamline
+    // this.saveState();                       //rewriting individual functions to streamline
 
-    let difficultyBoard, threshold, history;
+    let difficultyBoard;
 
     switch (difficulty) {
       case "easy":
         difficultyBoard = this.state.easyBoard
-        history = this.state.easyBoard
-        threshold = 0.5
         break;
       case "medium":
         difficultyBoard = this.state.mediumBoard
-        history = this.state.mediumBoard
-        threshold = 0.4
         break;
       default:
         difficultyBoard = this.state.hardBoard
-        history = this.state.hardBoard
-        threshold = 0.3
         break;
     }
 
-    if (difficultyBoard[0] === 0){
-      let board = this.createBoard();
-      let boardDisp = [];
-      for (let i = 0; i<81;i++){
-        boardDisp[i] = (Math.random() < threshold)
-          ? board[i]
-          : "";
+    if (difficultyBoard[0] === 0) {
+
+      let boards = this.createBoard(difficulty);
+      let board = boards[0];
+      let boardDisp = boards[1]
+
+      switch (difficulty) {
+        case "easy":
+          this.setState({
+            easyBoard: board,
+            squares: boardDisp,
+            easyDisp: [boardDisp],
+          })
+          break;
+        case "medium":
+          this.setState({
+            mediumBoard: board,
+            squares: boardDisp,
+            mediumDisp: [boardDisp],
+          })
+          break;
+        default:
+          this.setState({
+            hardBoard: board,
+            squares: boardDisp,
+            hardDisp: [boardDisp],
+          })
+          break;
       }
-     
-        this.state.squares = boardDisp,
-        // difficultyBoard:board,
-        // history:board,
-        // difficulty:difficulty
+    } else {
+
+      switch (difficulty) {
+        case "easy":
+          this.setState({
+            squares: this.state.easyDisp
+          })
+          break;
+        case "medium":
+          this.setState({
+            squares: this.state.mediumDisp
+          })
+          break;
+        case "hard":
+          this.setState({
+            squares: this.state.hardDisp
+          })
+          break;
+      }
+
     }
 
   }
 
   saveState() {
     switch (this.state.difficulty) {
-      case 1:
-        this.setState({ easyBoardDisp: this.state.squares })
+      case "easy":
+        this.setState({ easyDisp: this.state.squares })
         break;
-      case 2:
-        this.setState({ mediumBoardDisp: this.state.squares })
+      case "medium":
+        this.setState({ mediumDisp: this.state.squares })
         break;
       default:
-        this.setState({ hardBoardDisp: this.state.squares })
+        this.setState({ hardDisp: this.state.squares })
         break;
     }
   }
 
-  createBoard() {
+  createBoard(difficulty) {
+    let threshold
 
     let randomBoard = Array(9).fill(0);
     for (let x = 0; x < 9; x++) {
@@ -214,16 +189,35 @@ class Game extends React.Component {
     let board = this.solveBoard(randomBoard);
 
     let shuffledBoard = this.shuffleBoard(board);
-    // let shuffledBoard = board;
 
-    let cellNo = 0,
-      completeBoard = []
+    switch (difficulty) {
+      case "easy":
+        threshold = 0.5;
+        break;
+      case "medium":
+        threshold = 0.4;
+        break;
+      case "hard":
+        threshold = 0.3;
+        break;
+      default:
+        break;
+    }
+
+    let
+      cellNo = 0,
+      completeBoard = [],
+      boardDisp = [];
+
     for (let i = 0; i < 9; i++) {
       for (let y = 0; y < 9; y++) {
-        completeBoard[cellNo++] = shuffledBoard[i][y];
+        completeBoard[cellNo] = shuffledBoard[i][y];
+        boardDisp[cellNo++] = (Math.random() < threshold)
+          ? shuffledBoard[i][y]
+          : "";
       }
     }
-    return (completeBoard)
+    return [completeBoard, boardDisp]
   }
 
   solveBoard(board) {
@@ -364,88 +358,130 @@ class Game extends React.Component {
   }
 
   input(i) {
-    if (this.state.input === "") return;
 
-    const current = this.state.squares;
-    const history = [];
-    history.push(this.state.squares);   //change to push specific difficulty squares
+    let input = this.state.input;
+    if (input === "") return;
 
-    const easy = this.state.easyHistory;
-    const medium = this.state.mediumHistory;
-    const hard = this.state.hardHistory;
-    const input = this.state.input;
+    const current = this.state.squares.slice();
+    current[i] = input;
 
+    console.log(`input(${i})`)
 
+    this.setState((state, props) => ({
+      squares: current,
+      input: "",
+    }));
 
-    switch (this.state.difficulty) {
+    let difficulty = this.state.difficulty;
+
+    switch (difficulty) {
       case "easy":
-        history.push(easy);
+        let easy = this.state.easyDisp;
+        easy.push(current);
         this.setState({
-          easyHistory: history
+          easyDisp: easy
         })
         break;
       case "medium":
-        history.push(medium)
+        let medium = this.state.mediumDisp;
+        medium.push(current)
         this.setState({
-          mediumHistory: history
+          mediumDisp: medium
         })
         break;
       case "hard":
-        history.push(hard)
+        let hard = this.state.hardDisp;
+        hard.push(current)
         this.setState({
-          hardHistory: history
+          hardDisp: hard
         })
         break;
       default:
         return
     }
 
+    this.checkComplete(difficulty,current);
 
+  }
 
-    current[i] = input;
+  checkComplete(difficulty,current){
 
+    switch(difficulty){
+      case "easy":
+        if (current === this.state.easyBoard){
+          alert("Yay! You did it!")
+        }
+      case "medium ":
+        if (current === this.state.mediumBoard){
+          alert("Yay! You did it!")
+        }
+      case "hard":
+        if (current === this.state.hardBoard){
+          alert("Yay! You did it!")
+        }
+    }
+      
 
-    this.setState({
-      squares: current,
-      input: "",
-    })
-
-    //  this.state.notes[81]? this.set.state({notes[cellNo]:1}) : "";
   }
 
   undo() {
 
-    const easy = this.state.easyHistory;
-    const medium = this.state.mediumHistory;
-    const hard = this.state.hardHistory;
+    let display;
+    const difficulty = this.state.difficulty;
 
-    console.log("hello");
+    if (difficulty === "") return;
 
     switch (this.state.difficulty) {
       case "easy":
+        
+      let easy = this.state.easyDisp;
+        if (easy.length === 1) {
+          return;
+        } else {
+          easy.pop()
+        }
 
+        display = easy[easy.length - 1]
         this.setState({
-
-          easyHistory: easy,
-          squares: this.state.squares,
+          easyDisp: easy,
+          squares: display,
         })
+
         break;
       case "medium":
 
+        let medium = this.state.mediumDisp;
+        if (medium.length === 1) {
+          return;
+        } else {
+          medium.pop()
+        }
+
+        display = medium[medium.length -1];
         this.setState({
-          mediumHistory: medium.slice(-2, -1),
-          squares: medium,
+          mediumDisp: medium,
+          squares: display,
         })
+
         break;
       case "hard":
+        
+        const hard = this.state.hardDisp;
+        if (hard.length === 1) {
+          return;
+        } else {
+          hard.pop()
+        }
 
+        display = hard[hard.length -1]
         this.setState({
-          hardHistory: hard.slice(0, -1),
-          squares: hard,
+          hardDisp: hard,
+          squares: display,
         })
+
         break;
       default:
-        return
+        return;
     }
   }
 
@@ -456,6 +492,8 @@ class Game extends React.Component {
     })
     console.log("x:" + x + " input:" + this.state.input);
   }
+
+  
 
   render() {
     return (<div className="game">
