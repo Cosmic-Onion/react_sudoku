@@ -141,21 +141,24 @@ class Game extends React.Component {
           break;
       }
     } else {
-
+      let display;
       switch (difficulty) {
         case "easy":
+          display = this.state.easyDisp;
           this.setState({
-            squares: this.state.easyDisp
+            squares: display[display.length -1]
           })
           break;
         case "medium":
+          display = this.state.mediumDisp;
           this.setState({
-            squares: this.state.mediumDisp
+            squares: display[display.length -1]
           })
           break;
         case "hard":
+          display = this.state.hardDisp;
           this.setState({
-            squares: this.state.hardDisp
+            squares: display[display.length -1]
           })
           break;
       }
@@ -406,22 +409,30 @@ class Game extends React.Component {
 
   checkComplete(difficulty,current){
 
+    let completeDifficulty;
+
     switch(difficulty){
       case "easy":
-        if (current === this.state.easyBoard){
-          alert("Yay! You did it!")
-        }
+        completeDifficulty = this.state.easyBoard;
+        break;
       case "medium ":
-        if (current === this.state.mediumBoard){
-          alert("Yay! You did it!")
-        }
+        completeDifficulty = this.state.mediumBoard;
+        break;
       case "hard":
-        if (current === this.state.hardBoard){
-          alert("Yay! You did it!")
-        }
+        completeDifficulty = this.state.hardBoard;
+        break;
+      default:
+        break;
     }
-      
-
+    
+    for (let x = 0; x<81; x++){
+      if (current[x] === completeDifficulty[x]){
+        continue;
+      }else{
+        return;
+      }
+    }
+    alert("Yay!!");
   }
 
   undo() {
