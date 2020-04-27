@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 function Cell(props) {
-  return (<button onClick={props.onClick} className={"cell " + props.isChunkVer + " " + props.isChunkHor}>
+  return (<button onClick={props.onClick} className={"cell " + props.isChunkVer + " " + props.isChunkHor + " " + (props.isNote ? "cell--note" : "" )}>
     {props.value}
 
   </button>)
@@ -12,7 +12,7 @@ function Cell(props) {
 class Board extends React.Component {
 
   renderCell(cellNo, chunkVertical, chunkHorizontal) {
-    return (<Cell key={cellNo} value={this.props.squares[cellNo]} isChunkVer={chunkVertical} isChunkHor={chunkHorizontal} onClick={() => this.props.onClick(cellNo)} />)
+    return (<Cell key={cellNo} value={this.props.squares[cellNo]} isChunkVer={chunkVertical} isChunkHor={chunkHorizontal} isNote={this.props.notes[cellNo + 1]} onClick={() => this.props.onClick(cellNo)} />)
   }
 
   createBoard(col, row) {
@@ -28,6 +28,7 @@ class Board extends React.Component {
         let chunkVertical = (y === 2 || y === 5)
           ? "cell--ver"
           : "";
+        
         columns.push(this.renderCell(cellNo++, chunkVertical, chunkHorizontal));
       }
       board.push(<div key={i} className="board-row">{columns}</div>);
@@ -79,9 +80,10 @@ class Game extends React.Component {
       mediumDisp: [0][0],
       hardBoard: [0],
       hardDisp: [0][0],
-      notes: Array(81),
       selectedCell: "",
-      input: ""
+      input: "",
+      erase: false,
+      notes: Array(82).fill(false),
     };
   }
 
@@ -146,19 +148,19 @@ class Game extends React.Component {
         case "easy":
           display = this.state.easyDisp;
           this.setState({
-            squares: display[display.length -1]
+            squares: display[display.length - 1]
           })
           break;
         case "medium":
           display = this.state.mediumDisp;
           this.setState({
-            squares: display[display.length -1]
+            squares: display[display.length - 1]
           })
           break;
         case "hard":
           display = this.state.hardDisp;
           this.setState({
-            squares: display[display.length -1]
+            squares: display[display.length - 1]
           })
           break;
       }
@@ -312,7 +314,7 @@ class Game extends React.Component {
 
   }
 
-  shuffleBoard(board) {
+  shuffleBoard(board) {     //TODO: improve randomness
 
     for (var i = 0; i < 9; i++) {
       board = shuffleColumns(board);
@@ -363,9 +365,33 @@ class Game extends React.Component {
   input(i) {
 
     let input = this.state.input;
-    if (input === "") return;
-
+    let erase = this.state.erase;
+    let notes = this.state.notes;
     const current = this.state.squares.slice();
+
+    if (erase === true) {
+      current[i] = "";
+      this.setState({
+        erase: false,     //TODO: once CSS toggle is correct, don't change erase here
+        squares: current,
+      })
+      return;
+    }
+    if (input === "") {
+      return;
+    }
+    if (notes[0] === true){
+      current[i] = current[i] + input ;
+      notes[0] =false;
+      notes[i+1] =true;
+      this.setState({
+        squares: current,
+        notes : notes,
+      })
+    }
+
+
+
     current[i] = input;
 
     console.log(`input(${i})`)
@@ -403,15 +429,15 @@ class Game extends React.Component {
         return
     }
 
-    this.checkComplete(difficulty,current);
+    this.checkComplete(difficulty, current);
 
   }
 
-  checkComplete(difficulty,current){
+  checkComplete(difficulty, current) {
 
     let completeDifficulty;
 
-    switch(difficulty){
+    switch (difficulty) {
       case "easy":
         completeDifficulty = this.state.easyBoard;
         break;
@@ -424,11 +450,11 @@ class Game extends React.Component {
       default:
         break;
     }
-    
-    for (let x = 0; x<81; x++){
-      if (current[x] === completeDifficulty[x]){
+
+    for (let x = 0; x < 81; x++) {
+      if (current[x] === completeDifficulty[x]) {
         continue;
-      }else{
+      } else {
         return;
       }
     }
@@ -444,8 +470,8 @@ class Game extends React.Component {
 
     switch (this.state.difficulty) {
       case "easy":
-        
-      let easy = this.state.easyDisp;
+
+        let easy = this.state.easyDisp;
         if (easy.length === 1) {
           return;
         } else {
@@ -468,7 +494,7 @@ class Game extends React.Component {
           medium.pop()
         }
 
-        display = medium[medium.length -1];
+        display = medium[medium.length - 1];
         this.setState({
           mediumDisp: medium,
           squares: display,
@@ -476,7 +502,7 @@ class Game extends React.Component {
 
         break;
       case "hard":
-        
+
         const hard = this.state.hardDisp;
         if (hard.length === 1) {
           return;
@@ -484,7 +510,7 @@ class Game extends React.Component {
           hard.pop()
         }
 
-        display = hard[hard.length -1]
+        display = hard[hard.length - 1]
         this.setState({
           hardDisp: hard,
           squares: display,
@@ -497,23 +523,34 @@ class Game extends React.Component {
   }
 
   inputChange(x) {
-    console.log("hello");
     this.setState({
       input: x,
     })
-    console.log("x:" + x + " input:" + this.state.input);
+    console.log("input:" + this.state.input);
   }
 
-  
+  handleErase() {
+    this.setState({  //TODO: add css toggle marker
+      erase: true,
+    })
+  }
+
+  handleNote() {
+    let trueNotes = this.state.notes;
+    trueNotes[0] = true;
+    this.setState({  //TODO: add css toggle marker
+      notes : trueNotes,
+    })
+  }
 
   render() {
     return (<div className="game">
       <div className="game-board">
-        <Board squares={this.state.squares} onClick={(i) => this.input(i)} />
+        <Board squares={this.state.squares} notes={this.state.notes} onClick={(i) => this.input(i)} />
         <div className="board-row">
           <button className="functions" onClick={() => this.undo()}>Undo</button>
-          <button className="functions" >Note</button>
-          <button className="functions">Erase</button>
+          <button className="functions" onClick={() => this.handleNote()}>Note</button>
+          <button className="functions" onClick={() => this.handleErase()}>Erase</button>
         </div>
         <Numbers onClick={(x) => this.inputChange(x)} />
       </div>
